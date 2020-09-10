@@ -87,9 +87,14 @@ if __name__ == "__main__":
         raise
 
     progress = Progress()
+    total_cnt = len(filepath_full)
+    upload_success_cnt = 0
+    files_exist_cnt = 0
+    upload_fail_cnt = 0
+
     # Put an object with contents
     for filepath in filepath_full:
-        # TODO set target object to place the file
+        # set target folder to place the file
         object_name = filepath.replace(mypath, "").lstrip("/")
         if folder_path is not None:
             folder_path = folder_path.lstrip("/").rstrip("/")
@@ -101,6 +106,7 @@ if __name__ == "__main__":
             data = minioClient.get_object(bucket_name, object_name)
             stat = minioClient.stat_object(bucket_name, object_name)
             upload = False
+            files_exist_cnt = files_exist_cnt + 1
         except ResponseError as err:
             pass
         except NoSuchKey as err:
@@ -117,5 +123,15 @@ if __name__ == "__main__":
                     file_path=filepath,
                     progress=progress,
                 )
+                upload_success_cnt = upload_success_cnt + 1
             except ResponseError as err:
                 print(err)
+                upload_fail_cnt = upload_fail_cnt + 1
+            except Exception as e:
+                print(e)
+                upload_fail_cnt = upload_fail_cnt + 1
+
+    print("All finished! Summary:")
+    print("success: {}".format(upload_success_cnt))
+    print("fail: {}".format(upload_fail_cnt))
+    print("files exist: {}".format(files_exist_cnt))
