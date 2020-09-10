@@ -76,6 +76,7 @@ if __name__ == "__main__":
     progress = Progress()
     # Put an object with contents
     for filepath in filepath_full:
+        # TODO set target object to place the file
         object_name = filepath.replace(mypath, "").lstrip("/")
         try:
             minioClient.fput_object(
