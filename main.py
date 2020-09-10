@@ -1,6 +1,11 @@
 from pathlib import Path
 from minio import Minio
-from minio.error import ResponseError, BucketAlreadyOwnedByYou, BucketAlreadyExists
+from minio.error import (
+    ResponseError,
+    BucketAlreadyOwnedByYou,
+    BucketAlreadyExists,
+    NoSuchKey,
+)
 from progress import Progress
 import argparse
 
@@ -71,7 +76,7 @@ if __name__ == "__main__":
         endpoint, access_key=access_key, secret_key=secret_key, secure=False,
     )
 
-    # Make a bucket with the make_bucket API call.
+    # Make a bucket with the make_bucket API call if not exists.
     try:
         minioClient.make_bucket(bucket_name)
     except BucketAlreadyOwnedByYou as err:
@@ -89,12 +94,28 @@ if __name__ == "__main__":
         if folder_path is not None:
             folder_path = folder_path.lstrip("/").rstrip("/")
             object_name = "{}/{}".format(folder_path, object_name)
+
+        # check if the object exist on server
+        upload = True
         try:
-            minioClient.fput_object(
-                bucket_name=bucket_name,
-                object_name=object_name,
-                file_path=filepath,
-                progress=progress,
-            )
+            data = minioClient.get_object(bucket_name, object_name)
+            stat = minioClient.stat_object(bucket_name, object_name)
+            upload = False
         except ResponseError as err:
-            print(err)
+            pass
+        except NoSuchKey as err:
+            pass
+        except Exception as e:
+            pass
+
+        # upload the object to MinIO server
+        if upload:
+            try:
+                minioClient.fput_object(
+                    bucket_name=bucket_name,
+                    object_name=object_name,
+                    file_path=filepath,
+                    progress=progress,
+                )
+            except ResponseError as err:
+                print(err)
