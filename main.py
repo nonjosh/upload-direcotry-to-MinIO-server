@@ -38,6 +38,13 @@ if __name__ == "__main__":
         help="MinIO server bucket_name, will create one if not exist",
         required=True,
     )
+    parser.add_argument(
+        "-f",
+        "--folder_path",
+        type=str,
+        help="the folder to place the object in MinIO server bucket, will create folders if not exist, default to put in root dir of the bucket",
+    )
+
     args = parser.parse_args()
 
     mypath = args.dir
@@ -46,6 +53,7 @@ if __name__ == "__main__":
     access_key = args.access_key
     secret_key = args.secret_key
     bucket_name = args.bucket_name
+    folder_path = args.folder_path
 
     print(args)
 
@@ -78,6 +86,9 @@ if __name__ == "__main__":
     for filepath in filepath_full:
         # TODO set target object to place the file
         object_name = filepath.replace(mypath, "").lstrip("/")
+        if folder_path is not None:
+            folder_path = folder_path.lstrip("/").rstrip("/")
+            object_name = "{}/{}".format(folder_path, object_name)
         try:
             minioClient.fput_object(
                 bucket_name=bucket_name,
