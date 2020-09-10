@@ -134,16 +134,24 @@ class Progress(Thread):
         self.current_size = 0
 
     def print_status(self, current_size, total_length, displayed_time, prefix):
-        formatted_str = prefix + format_string(
-            current_size, total_length, displayed_time
-        )
-        self.stdout.write(
-            _REFRESH_CHAR
-            + formatted_str
-            + " " * max(self.last_printed_len - len(formatted_str), 0)
-        )
-        self.stdout.flush()
-        self.last_printed_len = len(formatted_str)
+        try:
+            formatted_str = prefix + format_string(
+                current_size, total_length, displayed_time
+            )
+            self.stdout.write(
+                _REFRESH_CHAR
+                + formatted_str
+                + " " * max(self.last_printed_len - len(formatted_str), 0)
+            )
+            self.stdout.flush()
+            self.last_printed_len = len(formatted_str)
+        except Exception as e:
+            print(e)
+            print(
+                "An error occur for prefix={}, display_time={}".format(
+                    prefix, displayed_time
+                )
+            )
 
 
 def seconds_to_time(seconds):
