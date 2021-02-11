@@ -6,7 +6,8 @@ from minio.error import (
     BucketAlreadyExists,
     NoSuchKey,
 )
-from progress import Progress
+
+# from progress import Progress
 import argparse
 
 # main function
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     except ResponseError as err:
         raise
 
-    progress = Progress()
+    # progress = Progress()
     total_cnt = len(filepath_full)
     upload_success_cnt = 0
     files_exist_cnt = 0
@@ -122,7 +123,7 @@ if __name__ == "__main__":
                     bucket_name=bucket_name,
                     object_name=object_name,
                     file_path=filepath,
-                    progress=progress,
+                    # progress=progress,
                 )
                 upload_success_cnt = upload_success_cnt + 1
             except ResponseError as err:
