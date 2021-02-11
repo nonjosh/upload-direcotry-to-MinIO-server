@@ -117,6 +117,7 @@ if __name__ == "__main__":
         # upload the object to MinIO server
         if upload:
             try:
+                print(f"Uploading {object_name}")
                 minioClient.fput_object(
                     bucket_name=bucket_name,
                     object_name=object_name,
@@ -130,6 +131,8 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 upload_fail_cnt = upload_fail_cnt + 1
+        else:
+            print(f"Skipped {object_name}")
 
     print("All finished! Summary:")
     print("success: {}".format(upload_success_cnt))
